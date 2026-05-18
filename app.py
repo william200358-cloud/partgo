@@ -11,7 +11,7 @@ def get_db_connection():
 
 # 🛠️ 雲端自動點火防呆：如果資料庫不存在，自動建立並寫入資料
 def init_db_if_not_exists():
-    if not os.path.exists('parts.db'):
+    if True:
         print("偵測到雲端未建立資料庫，正在自動初始化...")
         conn = sqlite3.connect('parts.db')
         cursor = conn.cursor()
@@ -26,11 +26,12 @@ def init_db_if_not_exists():
             )
         ''')
         
-        dummy_parts = [
-            ('汽車發電機 (全新原廠代工件)', '大台北汽車材料', 2800, 'https://example.com/1'),
-            ('外匯進口高品質發電機 (保固半年)', '凱汰二手零件王', 1500, 'https://example.com/2'),
-            ('BMW E46 M3 原廠真皮賽車椅子 (一對)', '外匯雙B殺肉廠', 35000, 'https://example.com/5'),
-            ('BMW 尊榮全功能電動調整座椅', '極致汽車改裝', 18000, 'https://example.com/6')
+       dummy_parts = [
+            ('Suzuki Jimny JB74 專用大顆粒全地形越野胎 (BFGoodrich KO2 / 八成新)', '外匯越野改裝精品', 4500, 'https://example.com/tire'),
+            ('Jeep Wrangler 藍哥專用前保桿加重防撞桿 (附絞盤座/殺肉件)', '悍馬越野報廢場', 12000, 'https://example.com/bumper'),
+            ('Toyota Hilux 海拉克斯專用防滾籠與後斗貨架 (二手極新)', '北部 4x4 零件整合商', 18000, 'https://example.com/rack'),
+            ('Jimny 專用加大終傳比齒輪箱 (改大胎重拖救星)', '外匯越野改裝精品', 8500, 'https://example.com/gear'),
+            ('越野車通用避震器升高套件 (2吋防傾桿+減震筒組)', '凱汰二手零件王', 15000, 'https://example.com/suspension')
         ]
         
         cursor.executemany('INSERT INTO parts (name, source, price, link) VALUES (?, ?, ?, ?)', dummy_parts)
