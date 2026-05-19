@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import os
+import requests
+from bs4 import BeautifulSoup
+import re
 
 app = Flask(__name__)
 
@@ -9,52 +12,91 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# 🛠️ 資料庫清洗點火：注入 100% 純汽車各種二手/改裝零件數據
 def init_db_if_not_exists():
-    if True:  
-        print("正在為雲端注入純車輛零件比價大數據...")
-        conn = sqlite3.connect('parts.db')
-        cursor = conn.cursor()
-        
-        cursor.execute('DROP TABLE IF EXISTS parts')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS parts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                source TEXT NOT NULL,
-                price INTEGER NOT NULL,
-                link TEXT
-            )
-        ''')
-        
-        # 🎯 圍繞真實渠道衍生出的車輛各種零件比價清單
-        dummy_parts = [
-            # 1. 腳踏墊 / 地墊類零件
-            ('Jeep Gladiator (2021) 專用全天候防水腳踏墊 (Rough Country 美國直郵代購件)', '美國 Rough Country 原廠', 3200, 'https://www.roughcountry.com/floor-mats-cargo-liners/jeep/gladiator/2021'),
-            ('Jeep Wrangler / Gladiator 專用防滑耐磨橡膠地墊 (車友二手出清)', 'Facebook 跨境零件交流社團', 1800, 'https://www.facebook.com/groups/325391057802702'),
-            
-            # 2. 懸吊 / 避震器類零件
-            ('鈴木 Suzuki Jimny JB74 專用外匯進口升級避震器加高套件 (比比昂日本代標現貨)', 'Bibian 比比昂 - 日本Yahoo拍賣代標', 18500, 'https://share.google/EfGnvwfS0FMLQY9gs'),
-            ('Land Rover Discovery 專用高階越野懸吊避震系統改裝精品減震筒 (海外直送)', 'Lucky8 LLC 全球越野中心', 26000, 'https://lucky8llc.com/'),
-            ('Land Rover Defender 2020+ 專用外匯越野升級避震器套件 (全新進口)', 'Lucky8 LLC 全球越野中心', 28500, 'https://lucky8llc.com/'),
-            
-            # 3. 外觀 / 防撞桿 / 車頂架 / 輪框殺肉件
-            ('Toyota Hilux 海拉克斯專用美規前保桿加重防撞桿 (日本外匯精品)', 'Bibian 比比昂 - 日本Yahoo拍賣代標', 15000, 'https://share.google/EfGnvwfS0FMLQY9gs'),
-            ('Suzuki Jimny 專用輕量化鋁合金雙層防雨車頂行李架 (側邊附爬梯梯子)', 'Bibian 比比昂 - 日本Yahoo拍賣代標', 8500, 'https://share.google/EfGnvwfS0FMLQY9gs'),
-            ('Jeep 藍哥 Wrangler 專用外匯 17 吋越野防脫圈輪框 (四輪組面議)', 'Facebook 跨境零件交流社團', 0, 'https://www.facebook.com/groups/325391057802702'),
-            
-            # 4. 報廢車通用殺肉專區
-            ('全球四驅越野車、皮卡車外匯殺肉件與二手車輛零件買賣交流社團', 'Facebook 跨境零件交流社團', 0, 'https://www.facebook.com/groups/325391057802702')
-        ]
-        
-        cursor.executemany('INSERT INTO parts (name, source, price, link) VALUES (?, ?, ?, ?)', dummy_parts)
-        conn.commit()
-        conn.close()
-        print("純車輛零件比價數據注入成功！")
+    conn = sqlite3.connect('parts.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS parts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            source TEXT NOT NULL,
+            price INTEGER NOT NULL,
+            link TEXT UNIQUE
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 init_db_if_not_exists()
 
-# 🔍 前台搜尋大腦（智慧防空擋機制已改為純車輛導航）
+# 🕷️ 核心引擎：即時聯網爬取比比昂（日本Yahoo拍賣）精準商品頁面
+def fetch_live_bibian_data(keyword):
+    # 建立比比昂日本Yahoo拍賣的真實搜尋網址
+    search_url = f"https://www.bibian.co.jp/bbs_search.php?keyword={keyword}"
+    
+    # 偽裝成一般 iPhone/Chrome 瀏覽器標頭，防止機房 IP 被擋
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+    }
+    
+    scraped_results = []
+    
+    try:
+        # 1. 帶著關鍵字直奔現場
+        response = requests.get(search_url, headers=headers, timeout=8)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # 2. 根據比比昂目前的網頁結構，精準定位每一個商品的卡片區塊
+            # (實務上代標網多以 items, product-box 或 li 呈現，這裡採用通用解析邏輯)
+            items = soup.select('.product_box, .item, .search_result_li, li')
+            
+            for item in items:
+                # A. 抓取精準的商品名稱
+                title_tag = item.select_one('.title, .item_name, a')
+                # B. 抓取直覺的價格（包含日幣或已換算台幣的數字）
+                price_tag = item.select_one('.price, .current_price, .money')
+                # C. 核心關鍵：抓取該商品「精準的詳情頁面網址」
+                link_tag = item.select_one('a')
+                
+                if title_tag and price_tag and link_tag:
+                    name = title_tag.text.strip()
+                    raw_price = price_tag.text.strip()
+                    raw_link = link_tag.get('href', '')
+                    
+                    # 過濾掉非目標的雜訊連結
+                    if not raw_link or 'javascript' in raw_link or len(name) < 3:
+                        continue
+                        
+                    # 補全相對路徑網址，變成絕對能點轉的「精準網址」
+                    if raw_link.startswith('/'):
+                        full_link = f"https://www.bibian.co.jp{raw_link}"
+                    else:
+                        full_link = raw_link
+                    
+                    # 清洗價格文字，只留下純數字 (例如 NT$ 1,500 -> 1500)
+                    digits = re.findall(r'\d+', raw_price.replace(',', ''))
+                    price = int(digits[0]) if digits else 0
+                    
+                    # 只要有名稱、價格與精準網址，就視為有效比價資料
+                    if price > 0 and name:
+                        scraped_results.append({
+                            'name': name,
+                            'source': '比比昂日本代標 (Yahoo!)',
+                            'price': price,
+                            'link': full_link
+                        })
+                        
+                # 為了搜尋速度，第一階段即時抓取前 10 筆最精準的資料即可
+                if len(scraped_results) >= 10:
+                    break
+    except Exception as e:
+        print(f"即時聯網抓取發生小插曲: {str(e)}")
+        
+    return scraped_results
+
+# 🔍 前台大腦：只要輸入關鍵字，立刻發動即時動態爬蟲
 @app.route('/')
 def index():
     query = request.args.get('query', '').strip()
@@ -62,9 +104,20 @@ def index():
     results = []
     
     if query:
+        # 🚀 第一步：即時發動跨海爬蟲，直奔比比昂代標現場抓取「精準網址」商品
+        live_data = fetch_live_bibian_data(query)
+        
+        # 🚀 第二步：將剛剛即時抓到的最新網址與價格，暫存進雲端資料庫（自動過濾重複）
         conn = get_db_connection()
         cursor = conn.cursor()
+        for item in live_data:
+            cursor.execute('''
+                INSERT OR IGNORE INTO parts (name, source, price, link)
+                VALUES (?, ?, ?, ?)
+            ''', (item['name'], item['source'], item['price'], item['link']))
+        conn.commit()
         
+        # 🚀 第三步：從資料庫撈出包含該關鍵字的所有零件，並依價格「低到高自動比價排序」
         if brand and brand != '選擇品牌':
             cursor.execute("SELECT * FROM parts WHERE name LIKE ? AND name LIKE ? ORDER BY price ASC", 
                            ('%' + query + '%', '%' + brand + '%'))
@@ -73,32 +126,6 @@ def index():
             
         results = [dict(row) for row in cursor.fetchall()]
         conn.close()
-        
-        # 🚀 防空擋救援：搜到太冷門的汽車零件，自動導向真實汽車代購渠道搜尋
-        if len(results) == 0:
-            results = [
-                {
-                    'id': 999,
-                    'name': f'【日本外匯車件】您搜尋的汽車零件「{query}」代標現場！點擊同步日本 Yahoo 拍賣最新殺肉件',
-                    'source': 'Bibian 比比昂 日本代標',
-                    'price': 0,
-                    'link': 'https://share.google/EfGnvwfS0FMLQY9gs'
-                },
-                {
-                    'id': 998,
-                    'name': f'【美國原廠直送】「{query}」Jeep、皮卡全系列車款原廠升級件與全天候改裝精品直發台灣',
-                    'source': 'Rough Country / 美國直郵',
-                    'price': 0,
-                    'link': 'https://www.roughcountry.com/floor-mats-cargo-liners/jeep/gladiator/2021'
-                },
-                {
-                    'id': 997,
-                    'name': f'【歐美越野精品】「{query}」Land Rover 衛士/發現系列高階懸吊、底盤外匯零件全球速配',
-                    'source': 'Lucky8 LLC 歐美代購',
-                    'price': 0,
-                    'link': 'https://lucky8llc.com/'
-                }
-            ]
         
     return render_template('index.html', results=results, query=query, brand=brand)
 
