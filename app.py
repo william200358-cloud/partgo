@@ -29,12 +29,10 @@ def init_db_if_not_exists():
             )
         ''')
         
-        dummy_parts = [
-            ('Suzuki Jimny JB74 專用大顆粒全地形越野胎 (BFGoodrich KO2 / 八成新)', '外匯越野改裝精品', 4500, 'https://example.com/tire'),
-            ('Jeep Wrangler 藍哥專用前保桿加重防撞桿 (附絞盤座/殺肉件)', '悍馬越野報廢場', 12000, 'https://example.com/bumper'),
-            ('Toyota Hilux 海拉克斯專用防滾籠與後斗貨架 (二手極新)', '北部 4x4 零件整合商', 18000, 'https://example.com/rack'),
-            ('Jimny 專用加大終傳比齒輪箱 (改大胎重拖救星)', '外匯越野改裝精品', 8500, 'https://example.com/gear'),
-            ('越野車通用避震器升高套件 (2吋防傾桿+減震筒組)', '凱汰二手零件王', 15000, 'https://example.com/suspension')
+dummy_parts = [
+            ('Jeep Gladiator (2021) 專用全天候防水腳踏墊 / 後行李箱襯墊 (Rough Country 二手極新)', '北部 4x4 零件交流商', 3200, 'https://www.roughcountry.com/floor-mats-cargo-liners/jeep/gladiator/2021'),
+            ('Land Rover Discovery / Defender 專用外匯升級避震與越野改裝精品套件', 'Lucky8 LLC 台灣代購組', 28500, 'https://lucky8llc.com/'),
+            ('越野四驅車材料零件與全台報廢車殺肉件買賣交流社團', 'Facebook 越野車零件交流社團', 0, 'https://www.facebook.com/groups/325391057802702')
         ]
         
         cursor.executemany('INSERT INTO parts (name, source, price, link) VALUES (?, ?, ?, ?)', dummy_parts)
