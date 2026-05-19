@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
-import os
-import requests
+import urllib.parse  # 引入編碼工具，防止中文亂碼
 
 app = Flask(__name__)
 
@@ -19,7 +18,7 @@ def init_db_if_not_exists():
             name TEXT NOT NULL,
             source TEXT NOT NULL,
             price INTEGER NOT NULL,
-            link TEXT UNIQUE
+            link TEXT
         )
     ''')
     conn.commit()
@@ -27,90 +26,7 @@ def init_db_if_not_exists():
 
 init_db_if_not_exists()
 
-# 🕷️ 黑科技大腦：直連後台隱藏 API 接口，0.1秒狂飆抓取精準商品網址
-def fetch_live_api_data(keyword):
-    # 這是破譯出來的比比昂後台專屬 Yahoo 拍賣即時資料 JSON 接口
-    api_url = "https://www.bibian.co.jp/api/v1/yahoojp/search"
-    
-    # 帶上搜尋參數：關鍵字、排序（從便宜到貴）、分頁
-    params = {
-        "keyword": keyword,
-        "order": "a",       # 'a' 代表 Ascending，由低到高排序
-        "per_page": 20,     # 一口氣抓 20 筆最精準的零件
-        "page": 1
-    }
-    
-    # 偽裝成網頁官方前端的瀏覽器標頭
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://www.bibian.co.jp/",
-        "Accept": "application/json, text/plain, */*"
-    }
-    
-    scraped_results = []
-    
-    try:
-        # 直接向接口要純 JSON 資料，完全跳過網頁轉圈圈載入的時間！
-        response = requests.get(api_url, params=params, headers=headers, timeout=5)
-        
-        if response.status_code == 200:
-            json_data = response.json()
-            
-            # 解析對方的資料結構（通常資料會包在 items 或 data 陣列裡）
-            items = json_data.get('data', {}).get('items', []) or json_data.get('items', [])
-            
-            # 萬一對方的內部隱藏路徑因權限調整，我們設計一套高相容性的智慧動態解析邏輯
-            if not items and 'results' in json_data:
-                items = json_data['results']
-                
-            for item in items:
-                # 直接撈取後台最精準的欄位：商品名、價格、商品絕對路徑網址
-                name = item.get('title') or item.get('name')
-                price = item.get('price') or item.get('current_price') or item.get('price_bdt', 0)
-                # 抓取精準的商品詳情頁網址！
-                product_id = item.get('id') or item.get('auction_id')
-                link = item.get('url') or item.get('link')
-                
-                # 如果只有商品 ID，我們就自動幫他拼出 100% 能空降進去的精準詳情網址
-                if product_id and not link:
-                    link = f"https://www.bibian.co.jp/bbs_detail.php?id={product_id}"
-                
-                if name and link:
-                    # 確保價格是整數數字
-                    try:
-                        price = int(float(str(price).replace(',', '')))
-                    except:
-                        price = 0
-                        
-                    scraped_results.append({
-                        'name': name,
-                        'source': '比比昂日本代標 (Yahoo!拍賣現場)',
-                        'price': price,
-                        'link': link
-                    })
-    except Exception as e:
-        print(f"API 接口連線小插曲（切換至智慧動態模式）: {str(e)}")
-        
-    # 🛠️ 備援大腦：萬一遠端機房擋海外 IP，立刻自動生成「精準字詞搜尋卡」，保證網頁永遠不落空！
-    if not scraped_results:
-        scraped_results = [
-            {
-                'name': f'【日本外匯現況】即時追蹤您的汽車零件「{keyword}」➔ 點擊空降比比昂 Yahoo! 拍賣最新詳情頁',
-                'source': 'Bibian 比比昂 日本代標',
-                'price': 0,
-                'link': f'https://www.bibian.co.jp/bbs_search.php?keyword={keyword}'
-            },
-            {
-                'name': f'【美國原廠直發】專屬越野車款「{keyword}」➔ 點擊空降美規 Rough Country 零件搜尋詳情頁',
-                'source': 'Rough Country 美國直郵',
-                'price': 0,
-                'link': f'https://www.roughcountry.com/search?q={keyword}'
-            }
-        ]
-        
-    return scraped_results
-
-# 🔍 前台核心搜尋路由
+# 🔍 前台核心：發動「智慧網址參數空降引擎」
 @app.route('/')
 def index():
     query = request.args.get('query', '').strip()
@@ -118,28 +34,46 @@ def index():
     results = []
     
     if query:
-        # 1. 0.1秒極速衝進後台隱藏 API 攔截精準商品與網址
-        live_data = fetch_live_api_data(query)
+        # 🎯 將中文字轉化為網頁看懂的編碼（例如：避震 -> %E9%81%BF%E9%9C%87）
+        encoded_query = urllib.parse.quote(query)
         
-        # 2. 將最新攔截到的真實零件網址與價格存入 SQLite（自動過濾重複網址）
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        for item in live_data:
-            cursor.execute('''
-                INSERT OR IGNORE INTO parts (name, source, price, link)
-                VALUES (?, ?, ?, ?)
-            ''', (item['name'], item['source'], item['price'], item['link']))
-        conn.commit()
+        # 🚀 既然對方擋 API，我們就直接用對方的「真實搜尋頁面網址」進行逆向參數注入！
+        # 這樣能 100% 保證使用者點擊時，直接在比比昂和歐美官網看見該零件的最新即時搜尋結果！
+        results = [
+            {
+                'id': 1,
+                'name': f'【日本 Yahoo 拍賣現場】查看最新「{query}」二手外匯殺肉件與即時競標品',
+                'source': 'Bibian 比比昂 日本代標',
+                'price': 0, 
+                # 🔥 修正為比比昂官方標準公開的搜尋路徑
+                'link': f'https://www.bibian.co.jp/bbs_search.php?keyword={encoded_query}' 
+            },
+            {
+                'id': 2,
+                'name': f'【美國原廠直送】前往 Rough Country 官網查看專屬「{query}」全天候改裝精品爆款',
+                'source': 'Rough Country 美國直郵',
+                'price': 0,
+                'link': f'https://www.roughcountry.com/search?q={encoded_query}' 
+            },
+            {
+                'id': 3,
+                'name': f'【歐美越野精品】前往 Lucky8 尋找 Land Rover 專用底盤懸吊、高階「{query}」外匯升級件',
+                'source': 'Lucky8 LLC 歐美外匯',
+                'price': 0,
+                'link': f'https://lucky8llc.com/search?q={encoded_query}' 
+            },
+            {
+                'id': 4,
+                'name': f'【台灣現貨車友交流】前往臉書跨境越野四驅、皮卡外匯通用「{query}」零件買賣社團',
+                'source': 'Facebook 跨境零件交流社團',
+                'price': 0,
+                'link': f'https://www.facebook.com/groups/325391057802702'
+            }
+        ]
         
-        # 3. 從資料庫撈出，並依價格「低到高自動比價排序」
+        # 根據前台選擇的品牌/渠道進行過濾
         if brand and brand != '選擇品牌':
-            cursor.execute("SELECT * FROM parts WHERE name LIKE ? AND name LIKE ? ORDER BY price ASC", 
-                           ('%' + query + '%', '%' + brand + '%'))
-        else:
-            cursor.execute("SELECT * FROM parts WHERE name LIKE ? ORDER BY price ASC", ('%' + query + '%',))
-            
-        results = [dict(row) for row in cursor.fetchall()]
-        conn.close()
+            results = [r for r in results if brand in r['source'] or brand in r['name']]
         
     return render_template('index.html', results=results, query=query, brand=brand)
 
