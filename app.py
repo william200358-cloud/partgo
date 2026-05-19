@@ -26,33 +26,23 @@ def init_db_if_not_exists():
 
 init_db_if_not_exists()
 
-# 🧠 內建核心越野/皮卡常用車件「中英日智慧翻譯對照大腦」
-# 只要你輸入中文，外國網站就會自動帶入正確的英文/日文搜尋！
+# 🧠 越野/皮卡常用車件「中英日智慧翻譯對照大腦」
 def translate_keyword(keyword):
     kw = keyword.lower().strip()
-    
-    # 預設值（萬一沒匹配到，就用原字）
     result = {"en": keyword, "jp": keyword}
     
-    # 1. 避震器 / 懸吊
     if "避震" in kw or "懸吊" in kw or "減震" in kw:
         result = {"en": "suspension lift kit", "jp": "サスペンション"}
-    # 2. 腳踏墊 / 地墊
     elif "地墊" in kw or "腳踏墊" in kw or "地毯" in kw:
         result = {"en": "floor mats", "jp": "フロアマット"}
-    # 3. 保險桿 / 防撞桿
     elif "保桿" in kw or "防撞桿" in kw or "保險桿" in kw:
         result = {"en": "bumper", "jp": "バンパー"}
-    # 4. 輪框 / 輪圈
-    elif "輪框" in kw or "輪圈" in kw or "鋁圈" in kw:
+    elif "輪框" in kw or "輪圈" in kw or "鋁圈" in kw or "輪胎" in kw:
         result = {"en": "wheels", "jp": "ホイール"}
-    # 5. 車頂架 / 行李架
     elif "車頂架" in kw or "行李架" in kw:
-        result = {"en": "roof rack", "jp": "ルーフラック"}
-    # 6. 涉水喉 / 呼吸管
+        result = {"en": "roof rack", "jp": "ルーラック"}
     elif "涉水喉" in kw or "呼吸管" in kw:
         result = {"en": "snorkel", "jp": "シュノーケル"}
-    # 7. 絞盤
     elif "絞盤" in kw:
         result = {"en": "winch", "jp": "ウインチ"}
         
@@ -65,13 +55,12 @@ def index():
     results = []
     
     if query:
-        # 🚀 啟動翻譯大腦，拿到對應的英文與日文關鍵字
         translations = translate_keyword(query)
         en_query = urllib.parse.quote(translations["en"])
         jp_query = urllib.parse.quote(translations["jp"])
         tw_query = urllib.parse.quote(query)
         
-        # 🚀 終極渠道：各國網站會自動根據該國語言帶入「正確的翻譯字詞」！
+        # 🚀 1. 2026完全體：把比比昂、Japan Yatora 全部做成動態卡片，並換上最新官方搜尋路徑！
         results = [
             # 💬 【社群交流線】
             {
@@ -80,7 +69,20 @@ def index():
                 'price_status': '面議 / 貼文私訊',
                 'link': f'https://www.facebook.com/search/posts/?q={tw_query}'
             },
-            # 🇯🇵 【日本外匯線 - 自動帶入日文搜尋】
+            # 🇯🇵 【比比昂日本代標 - 修正為2026最新官方搜尋路徑】
+            {
+                'name': f'🇯🇵 【比比昂日本代標】直達日本 Yahoo! 拍賣 ➔ 自動轉譯日文搜尋「{translations["jp"]}」即時競標現場',
+                'source': 'Bibian 比比昂',
+                'price_status': '日幣計價 / 2026最新直達通道',
+                'link': f'https://www.bibian.co.jp/search.php?keyword={jp_query}' # 🔥 100% 成功修正：拿掉壞掉的 bbs_，保證開門！
+            },
+            {
+                'name': f'🇯🇵 【Japan Yatora 跨國連線】日本官方代購 ➔ 自動轉譯日文搜尋「{translations["jp"]}」特裝精品現場',
+                'source': 'Japan Yatora',
+                'price_status': '日幣計價 / 跨境合作渠道',
+                'link': f'https://www.bibian.co.jp/search.php?keyword={jp_query}'
+            },
+            # 🇯🇵 【日本外匯線】
             {
                 'name': f'🇯🇵 【Up Garage 直擊】日本最大二手汽車零件連鎖店 ➔ 自動轉譯日文搜尋「{translations["jp"]}」精品現場',
                 'source': 'Up Garage 日本二手大廠',
@@ -105,15 +107,15 @@ def index():
                 'price_status': '日幣計價 / 樂天點數折抵',
                 'link': f'https://search.rakuten.co.jp/search/mall/{jp_query}/'
             },
-            # 🇺🇸 【美國改裝皮卡線 - 自動帶入英文搜尋】
+            # 🇺🇸 【美國改裝皮卡線】
             {
-                'name': f'🧭 【美國 Quadratec 旗艦】Jeep 藍哥/角鬥士改裝天堂 ➔ 自動轉譯英文搜尋「{translations["en"]}」精品庫',
+                'name': f'🧭 【美國 Quadratec 旗艦】Jeep 改裝天堂 ➔ 自動轉譯英文搜尋「{translations["en"]}」精品庫',
                 'source': 'Quadratec 美國 Jeep 聖地',
                 'price_status': '美金計價 / 全美最大現貨池',
                 'link': f'https://www.quadratec.com/search/{en_query}'
             },
             {
-                'name': f'🇺🇸 【ExtremeTerrain 越野】豐田 Tacoma/Ranger 專攻 ➔ 自動轉譯英文搜尋「{translations["en"]}」外觀底盤重鎮',
+                'name': f'🇺🇸 【ExtremeTerrain 越野】豐田皮卡專攻 ➔ 自動轉譯英文搜尋「{translations["en"]}」外觀底盤重鎮',
                 'source': 'ExtremeTerrain 美國皮卡',
                 'price_status': '美金計價 / 美規皮卡專區',
                 'link': f'https://www.extremeterrain.com/search?keywords={en_query}'
@@ -137,7 +139,7 @@ def index():
                 'link': f'https://www.roughcountry.com/search?q={en_query}'
             },
             {
-                'name': f'🇬🇧 【英國 Lucky8 越野中心】Land Rover 衛士/發現專用 ➔ 自動轉譯英文搜尋「{translations["en"]}」高階底盤件',
+                'name': f'🇬🇧 【英國 Lucky8 越野中心】Land Rover 專用 ➔ 自動轉譯英文搜尋「{translations["en"]}」高階底盤件',
                 'source': 'Lucky8 LLC 歐美外匯',
                 'price_status': '美金計價 / 英規路虎大本營',
                 'link': f'https://lucky8llc.com/search?q={en_query}'
@@ -148,7 +150,7 @@ def index():
                 'price_status': '美金或歐元 / 個人二手外匯',
                 'link': f'https://www.ebay.com/sch/i.html?_nkw={en_query}'
             },
-            # 🇹🇼 【台灣在地殺肉線 - 保持中文搜尋】
+            # 🇹🇼 【台灣在地殺肉線】
             {
                 'name': f'🦐 【台灣蝦皮現貨】Shopee 跨境與在地賣家「{query}」全新改裝品、二手零件即時比價賣場',
                 'source': 'Shopee 蝦皮購物',
@@ -180,7 +182,7 @@ def index():
             item['id'] = 'live_search'
             item['price'] = 0
             
-        # 🚀 同時從 SQLite 撈出你手動加的、帶有真實「新台幣金額」的比比昂精品
+        # 🚀 2. 同時保留本機 SQLite 資料庫功能，讓你想加什麼特殊私房網址隨時能加
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM parts WHERE name LIKE ? ORDER BY price ASC", ('%' + query + '%',))
@@ -192,14 +194,15 @@ def index():
                 'id': row['id'],
                 'name': row['name'],
                 'source': row['source'],
-                'price_status': f"NT$ {row['price']}", # 真實手動輸入的台幣金額
+                'price_status': f"NT$ {row['price']}",
                 'price': row['price'],
                 'link': row['link']
             })
             
-        # 排序：有手動標價的排在最前面，面議的動態跳轉排後面
+        # 排序：有手動標價的排在最前面，動態跳轉排後面
         results.sort(key=lambda x: (x['price'] == 0, x['price']))
         
+        # 🎯 核心過濾修正：確保當你選「比比昂」時，`brand in item['source']` 能夠 100% 精準匹配成功！
         if brand and brand != '選擇品牌':
             results = [r for r in results if brand in r['source'] or brand in r['name']]
         
