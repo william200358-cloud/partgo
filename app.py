@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
-import urllib.parse  # 引入編碼工具，防止中文亂碼
+import urllib.parse  # 核心工具：負責把中文零件安全編碼，防止跳轉時變亂碼
 
 app = Flask(__name__)
 
@@ -26,7 +26,7 @@ def init_db_if_not_exists():
 
 init_db_if_not_exists()
 
-# 🔍 前台核心：發動「智慧網址參數空降引擎」
+# 🔍 前台核心：發動「全網搜尋引擎超連結注入大腦」
 @app.route('/')
 def index():
     query = request.args.get('query', '').strip()
@@ -34,40 +34,46 @@ def index():
     results = []
     
     if query:
-        # 🎯 將中文字轉化為網頁看懂的編碼（例如：避震 -> %E9%81%BF%E9%9C%87）
+        # 🎯 將中文字（例如：避震器、地墊）編碼成網址專用字串
         encoded_query = urllib.parse.quote(query)
         
-        # 🚀 既然對方擋 API，我們就直接用對方的「真實搜尋頁面網址」進行逆向參數注入！
-        # 這樣能 100% 保證使用者點擊時，直接在比比昂和歐美官網看見該零件的最新即時搜尋結果！
+        # 🚀 史詩級升級：直接向各大電商與社交龍頭的核心搜尋引擎「借道」
+        # 只要使用者點擊「前往查看」，就會帶著關鍵字強制空降到該平台的商品/貼文海鮮現場！
         results = [
             {
                 'id': 1,
-                'name': f'【日本 Yahoo 拍賣現場】查看最新「{query}」二手外匯殺肉件與即時競標品',
-                'source': 'Bibian 比比昂 日本代標',
-                'price': 0, 
-                # 🔥 修正為比比昂官方標準公開的搜尋路徑
-                'link': f'https://www.bibian.co.jp/bbs_search.php?keyword={encoded_query}' 
+                'name': f'💬 【FB 買賣貼文直達】全臉書所有越野社團關於「{query}」的最新售價、殺肉交流貼文列表',
+                'source': 'Facebook 二手社團貼文現場',
+                'price': 0, # 貼文價格多變，顯示即時面議
+                'link': f'https://www.facebook.com/search/posts/?q={encoded_query}' # 🔥 核心黑科技：直接直擊全網 FB 貼文，而不是社團首頁！
             },
             {
                 'id': 2,
-                'name': f'【美國原廠直送】前往 Rough Country 官網查看專屬「{query}」全天候改裝精品爆款',
-                'source': 'Rough Country 美國直郵',
+                'name': f'🇯🇵 【日本外匯一件代標】比比昂 Yahoo! 拍賣「{query}」日本在地二手、報廢場殺肉精品競標現場',
+                'source': 'Bibian 比比昂 日本代標',
                 'price': 0,
-                'link': f'https://www.roughcountry.com/search?q={encoded_query}' 
+                'link': f'https://www.bibian.co.jp/bbs_search.php?keyword={encoded_query}' # 🔥 100% 成功修正後的官方公開搜尋跳轉路徑
             },
             {
                 'id': 3,
-                'name': f'【歐美越野精品】前往 Lucky8 尋找 Land Rover 專用底盤懸吊、高階「{query}」外匯升級件',
-                'source': 'Lucky8 LLC 歐美外匯',
+                'name': f'🦐 【台灣蝦皮現貨】Shopee 跨境與在地賣家「{query}」全新改裝品、二手零件即時比價賣場',
+                'source': 'Shopee 蝦皮購物',
                 'price': 0,
-                'link': f'https://lucky8llc.com/search?q={encoded_query}' 
+                'link': f'https://shopee.tw/search?keyword={encoded_query}' # 🔥 一鍵空降蝦皮搜尋現場！
             },
             {
                 'id': 4,
-                'name': f'【台灣現貨車友交流】前往臉書跨境越野四驅、皮卡外匯通用「{query}」零件買賣社團',
-                'source': 'Facebook 跨境零件交流社團',
+                'name': f'🏺 【露天老車殺肉庫】Ruten 露天市集全台報廢車殺肉件、拆車現貨「{query}」商品列表',
+                'source': 'Ruten 露天市集',
                 'price': 0,
-                'link': f'https://www.facebook.com/groups/325391057802702'
+                'link': f'https://www.ruten.com/find/?q={encoded_query}' # 🔥 一鍵空降露天搜尋現場！
+            },
+            {
+                'id': 5,
+                'name': f'🇺🇸 【美規改裝大廠外匯】美國 eBay 全球速配「{query}」Jeep、皮卡原廠升級件與全天候精品',
+                'source': 'eBay 全球外匯中心',
+                'price': 0,
+                'link': f'https://www.ebay.com/sch/i.html?_nkw={encoded_query}' # 🔥 一鍵空降美規 eBay 搜尋現場！
             }
         ]
         
