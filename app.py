@@ -9,9 +9,9 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# 🛠️ 雲端自動點火：每次重開都強迫刷新，把大量越野車比價零件灌進去
+# 🛠️ 雲端自動點火：強迫刷新注入大數據
 def init_db_if_not_exists():
-    if True:  # 強迫刷新資料
+    if True:  
         print("正在為雲端注入真實越野車零件比價數據...")
         conn = sqlite3.connect('parts.db')
         cursor = conn.cursor()
@@ -27,19 +27,13 @@ def init_db_if_not_exists():
             )
         ''')
         
-        # 🎯 基於你的三個真實網址，衍生出的大量比價選項（包含地墊、避震、FB社團）
         dummy_parts = [
-            # 1. Rough Country 地墊比價組（有便宜有貴，測試自動排序）
             ('Jeep Gladiator (2021) 專用全天候防水腳踏墊 (Rough Country 二手極新 / 腳踏墊專區)', '中部 4x4 改裝工坊', 2900, 'https://www.roughcountry.com/floor-mats-cargo-liners/jeep/gladiator/2021'),
             ('Jeep Gladiator (2021) 專用全天候防水腳踏墊 / 後行李箱襯墊 (Rough Country 原廠件)', '北部 4x4 零件交流商', 3200, 'https://www.roughcountry.com/floor-mats-cargo-liners/jeep/gladiator/2021'),
             ('Jeep Gladiator Rough Country 全天候防水地墊 (全新現貨代購)', '南部越野精品百貨', 4200, 'https://www.roughcountry.com/floor-mats-cargo-liners/jeep/gladiator/2021'),
-            
-            # 2. Lucky8 LLC 避震改裝比價組
             ('Land Rover Discovery / Defender 專用外匯升級避震套件 (Lucky8 專家推薦款)', 'Lucky8 LLC 台灣代購組', 26000, 'https://lucky8llc.com/'),
             ('Land Rover Defender 2020+ 專用外匯越野改裝精品避震器減震筒 (全新進口)', '高雄雙B越野殺肉廠', 28500, 'https://lucky8llc.com/'),
             ('Lucky8 原裝進口 Land Rover 全系列越野懸吊升級高階避震系統', '執著 4x4 改裝俱樂部', 31000, 'https://lucky8llc.com/'),
-            
-            # 3. FB 社團與車友交流組
             ('越野四驅車材料零件與全台報廢車殺肉件買賣交流社團 (車友交流/零件尋寶)', 'Facebook 越野車零件交流社團', 0, 'https://www.facebook.com/groups/325391057802702'),
             ('Jeep / Land Rover 報廢車殺肉件買賣與越野改裝二手零件交流專區', 'Facebook 越野車零件交流社團', 0, 'https://www.facebook.com/groups/325391057802702')
         ]
@@ -51,7 +45,7 @@ def init_db_if_not_exists():
 
 init_db_if_not_exists()
 
-# 🔍 前台搜尋：核心內建 ORDER BY price ASC（價格由低到高自動排序，0面議排最前）
+# 🔍 前台搜尋（確保最後有傳送 brand=brand）
 @app.route('/')
 def index():
     query = request.args.get('query', '')
@@ -71,9 +65,9 @@ def index():
         results = cursor.fetchall()
         conn.close()
         
-    return render_template('index.html', results=results, query=query, brand=brand)
+    return render_template('index.html', results=results, query=query, brand=brand) # 💡 關鍵就在這行！
 
-# 🛠️ 後台管理：隨時手動無限制新增更多真實零件網址
+# 🛠️ 後台管理
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     conn = get_db_connection()
