@@ -51,4 +51,42 @@
                 </div>
 
                 {% if query %}
-                    <h3 class="fw-bold text-dark mb-4">🔍 關於「{{ query }}」的比價結果：
+                    <h3 class="fw-bold text-dark mb-4">🔍 關於「{{ query }}」的比價結果：</h3>
+                    
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        {% for part in results %}
+                            <div class="col">
+                                <div class="card part-card h-100 shadow-sm p-4 bg-white">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <span class="badge bg-dark px-3 py-2">二手優選</span>
+                                        <span class="badge bg-secondary px-2 py-1">來源：{{ part['source'] }}</span>
+                                    </div>
+                                    
+                                    <h5 class="card-title fw-bold text-dark mb-3" style="line-height: 1.5;">{{ part['name'] }}</h5>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                                        <div>
+                                            <span class="text-secondary small d-block">即時報價</span>
+                                            <span class="price-tag">
+                                                {% if part['price'] == 0 %}面議{% else %}NT$ {{ part['price'] }}{% endif %}
+                                            </span>
+                                        </div>
+                                        <a href="{{ part['link'] }}" target="_blank" class="btn btn-outline-primary fw-bold px-4">前往查看 ➔</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 text-center py-5">
+                                <div class="text-muted fs-4 mb-2">😭 抱歉，目前在資料庫中找不到與「{{ query }}」相關的越野零件。</div>
+                                <span class="small text-secondary">您可以前往後台管理頁面，手動新增此網址與報價！</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
