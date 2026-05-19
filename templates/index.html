@@ -3,63 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PartGo 全網汽車零件跨境導航比價網</title>
+    <title>PartGo 全球越野/皮卡車件全網導航網</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .hero-section { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 60px 0; border-radius: 0 0 24px 24px; }
-        .search-card { border-radius: 16px; border: none; margin-top: -30px; }
-        .part-card { border-radius: 12px; border: none; transition: transform 0.2s; }
-        .part-card:hover { transform: translateY(-5px); }
-        .price-tag { color: #dc3545; font-size: 24px; font-weight: bold; }
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-section { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); color: white; padding: 70px 0; border-radius: 0 0 30px 30px; }
+        .search-card { border-radius: 20px; border: none; margin-top: -35px; }
+        .part-card { border-radius: 14px; border: none; transition: transform 0.2s, box-shadow 0.2s; }
+        .part-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+        .price-tag { color: #dc3545; font-size: 22px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="hero-section text-center shadow">
+    <div class="hero-section text-center shadow-lg">
         <div class="container">
-            <h1 class="display-4 fw-bold mb-3">🧭 PartGo 全網車件搜尋導航比價網</h1>
-            <p class="lead">智慧注入全網核心搜尋引擎，一鍵精準空降 Facebook 貼文、比比昂、蝦皮與美日電商現場</p>
-            <a href="/admin" class="btn btn-sm btn-outline-light mb-2">⚙️ 進入後台零件管理</a>
+            <h1 class="display-4 fw-bold mb-3">🧭 PartGo 全球越野零件導航比價旗艦</h1>
+            <p class="lead">已全面打通日本外匯線、美國皮卡四巨頭、歐美大廠、台灣在地殺肉線共 16 大黃金渠道</p>
+            <a href="/admin" class="btn btn-sm btn-outline-warning fw-bold mb-2">⚙️ 進入後台精準零件管理 (比比昂/Yatora)</a>
         </div>
     </div>
 
     <div class="container mb-5">
         <div class="row justify-content-center">
-            <div class="col-md-10">
+            <div class="col-md-11">
                 
                 <div class="card search-card shadow p-4 bg-white mb-5">
                     <form action="/" method="get">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <input type="text" name="query" class="form-control form-control-lg" placeholder="輸入想尋找的汽車零件，例如：避震、地墊、防撞桿、輪框..." value="{{ query }}" required>
+                                <input type="text" name="query" class="form-control form-control-lg" placeholder="輸入你想尋找的越野/皮卡零件，例如：避震、地墊、保桿、輪框..." value="{{ query }}" required>
                             </div>
                             <div class="col-md-4">
                                 <select name="brand" class="form-select form-select-lg">
-                                    <option value="選擇品牌">全球熱門渠道篩選</option>
-                                    <option value="Facebook" {% if brand == 'Facebook' %}selected{% endif %}>Facebook (二手社團貼文)</option>
-                                    <option value="比比昂" {% if brand == '比比昂' %}selected{% endif %}>Bibian 比比昂 (日本拍賣)</option>
-                                    <option value="Shopee" {% if brand == 'Shopee' %}selected{% endif %}>Shopee 蝦皮購物</option>
-                                    <option value="Ruten" {% if brand == 'Ruten' %}selected{% endif %}>Ruten 露天市集</option>
-                                    <option value="eBay" {% if brand == 'eBay' %}selected{% endif %}>eBay (歐美外匯中心)</option>
+                                    <option value="選擇品牌">🌏 全球 16 大車件渠道分類篩選</option>
+                                    <optgroup label="💬 社群交流與代購">
+                                        <option value="Facebook" {% if brand == 'Facebook' %}selected{% endif %}>Facebook (車友二手貼文直達)</option>
+                                        <option value="比比昂" {% if brand == '比比昂' %}selected{% endif %}>Bibian 比比昂 (手動精準頁庫)</option>
+                                        <option value="Yatora" {% if brand == 'Yatora' %}selected{% endif %}>Japan Yatora (手動精準頁庫)</option>
+                                    </optgroup>
+                                    <optgroup label="🇯🇵 日本外匯黃金線">
+                                        <option value="Up Garage" {% if brand == 'Up Garage' %}selected{% endif %}>Up Garage (日本最大二手廠)</option>
+                                        <option value="Croooober" {% if brand == 'Croooober' %}selected{% endif %}>Croooober (日本二手精選)</option>
+                                        <option value="Amazon" {% if brand == 'Amazon' %}selected{% endif %}>日本 Amazon</option>
+                                        <option value="樂天" {% if brand == '樂天' %}selected{% endif %}>日本樂天市場</option>
+                                    </optgroup>
+                                    <optgroup label="🇺🇸 美國改裝皮卡線">
+                                        <option value="Quadratec" {% if brand == 'Quadratec' %}selected{% endif %}>Quadratec (Jeep 改裝聖地)</option>
+                                        <option value="ExtremeTerrain" {% if brand == 'ExtremeTerrain' %}selected{% endif %}>ExtremeTerrain (美規皮卡)</option>
+                                        <option value="4WheelParts" {% if brand == '4WheelParts' %}selected{% endif %}>4WheelParts (越野大腳)</option>
+                                        <option value="CARiD" {% if brand == 'CARiD' %}selected{% endif %}>CARiD (汽車百貨巨頭)</option>
+                                        <option value="Rough Country" {% if brand == 'Rough Country' %}selected{% endif %}>Rough Country (美規底盤)</option>
+                                        <option value="Lucky8" {% if brand == 'Lucky8' %}selected{% endif %}>Lucky8 LLC (路虎歐美外匯)</option>
+                                        <option value="eBay" {% if brand == 'eBay' %}selected{% endif %}>eBay 全球速配中心</option>
+                                    </optgroup>
+                                    <optgroup label="🇹🇼 台灣在地殺肉線">
+                                        <option value="蝦皮" {% if brand == '蝦皮' %}selected{% endif %}>Shopee 蝦皮購物</option>
+                                        <option value="露天" {% if brand == '露天' %}selected{% endif %}>Ruten 露天市集</option>
+                                        <option value="Yahoo" {% if brand == 'Yahoo' %}selected{% endif %}>Yahoo 奇摩拍賣</option>
+                                        <option value="Carousell" {% if brand == 'Carousell' %}selected{% endif %}>Carousell 旋轉拍賣</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">發動全網搜尋</button>
+                                <button type="submit" class="btn btn-dark btn-lg w-100 fw-bold text-warning">全球發動 ➔</button>
                             </div>
                         </div>
                     </form>
                 </div>
 
                 {% if query %}
-                    <h3 class="fw-bold text-dark mb-4">🔍 關於汽車零件「{{ query }}」的全網即時跳轉通道：</h3>
+                    <h3 class="fw-bold text-dark mb-4">🔍 關於「{{ query }}」的全球戰略跳轉通道：</h3>
                     
                     <div class="row row-cols-1 row-cols-md-2 g-4">
                         {% for part in results %}
                             <div class="col">
                                 <div class="card part-card h-100 shadow-sm p-4 bg-white">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
-                                        <span class="badge bg-dark px-3 py-2">全網直達</span>
+                                        <span class="badge bg-warning text-dark px-3 py-2 fw-bold">跨境直達</span>
                                         <span class="badge bg-secondary px-2 py-1">{{ part['source'] }}</span>
                                     </div>
                                     
@@ -68,11 +89,11 @@
                                     <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
                                         <div>
                                             <span class="text-secondary small d-block">即時狀態</span>
-                                            <span class="price-tag" style="font-size: 18px; color: #198754;">
-                                                ➔ 進入現場挑選商品
+                                            <span class="price-tag" style="font-size: 18px; color: #0f2027;">
+                                                {% if part['price'] == 0 %}➔ 前往該網站即時搜尋頁面{% else %}NT$ {{ part['price'] }}{% endif %}
                                             </span>
                                         </div>
-                                        <a href="{{ part['link'] }}" target="_blank" class="btn btn-primary fw-bold px-4">前往查看 ➔</a>
+                                        <a href="{{ part['link'] }}" target="_blank" class="btn btn-outline-dark fw-bold px-4">直擊現場 ➔</a>
                                     </div>
                                 </div>
                             </div>
