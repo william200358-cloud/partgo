@@ -120,7 +120,7 @@
                                     {% if part['price'] == 0 %}面議{% else %}NT$ {{ part['price'] }}{% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ part['link'] }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2 small">直連</a>
+                                    <a href="{{ part['link'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-info btn-sm py-0 px-2 small">直連</a>
                                 </td>
                                 <td>
                                     <form action="/admin/delete/{{ part['id'] }}" method="post"

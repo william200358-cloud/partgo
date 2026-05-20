@@ -75,10 +75,30 @@ TRANSLATION_TABLE = [
 
 def translate_keyword(keyword):
     kw = keyword.strip()
-    for keywords, result in TRANSLATION_TABLE:
-        if any(k in kw for k in keywords):
-            return result
-    return {"en": keyword, "jp": keyword}
+    if not kw:
+        return {"en": "", "jp": ""}
+
+    en_kw = kw
+    jp_kw = kw
+    matched = False
+    for keywords, result in sorted(
+        TRANSLATION_TABLE,
+        key=lambda item: max(len(k) for k in item[0]),
+        reverse=True
+    ):
+        for key in sorted(keywords, key=len, reverse=True):
+            if key in en_kw or key in jp_kw:
+                en_kw = en_kw.replace(key, result["en"])
+                jp_kw = jp_kw.replace(key, result["jp"])
+                matched = True
+
+    if not matched:
+        return {"en": kw, "jp": kw}
+
+    return {
+        "en": " ".join(en_kw.split()),
+        "jp": " ".join(jp_kw.split()),
+    }
 
 
 # ── eBay Browse API：抓前 5 筆即時商品 ──────────────────
@@ -141,12 +161,11 @@ def _get_ebay_token():
     return resp.json().get("access_token", "")
 
 
-# ── 靜態導航渠道清單（順序：日本 → 美國 → 台灣）────────
+# ── 靜態導航渠道清單（順序：台灣 → 中國 → 日本 → 美國）────────
 def build_results(query, translations, brand=''):
     """
     搜尋關鍵字 = 零件翻譯詞 + 車款（若有選）
-    順序：🇯🇵 日本 → 🇺🇸 美國 → 🇹🇼 台灣
-    Facebook 移至台灣區最後
+    順序：🇹🇼 台灣 → 🇨🇳 中國 → 🇯🇵 日本 → 🇺🇸 美國
     """
     # 組合搜尋字串
     en_part = translations["en"]
@@ -171,61 +190,98 @@ def build_results(query, translations, brand=''):
     display_jp = jp_full
 
     return [
+        # ── 🇹🇼 台灣線 ──────────────────────────────────
+        {"category": "台灣",
+         "name": f'🦐 蝦皮購物 ➔ 搜尋「{tw_full}」在地現貨',
+         "source": "Shopee 蝦皮購物", "price_status": "新台幣 / 點進看價",
+         "link": f"https://shopee.tw/search?keyword={tw_query}"},
+        {"category": "台灣",
+         "name": f'🏺 露天市集 ➔ 搜尋「{tw_full}」老車殺肉件',
+         "source": "Ruten 露天市集", "price_status": "新台幣 / 點進看價",
+         "link": f"https://www.ruten.com/find/?q={tw_query}"},
+        {"category": "台灣",
+         "name": f'🔨 Yahoo 奇摩拍賣 ➔ 搜尋「{tw_full}」競標現場',
+         "source": "Yahoo 奇摩拍賣", "price_status": "新台幣 / 點進看價",
+         "link": f"https://tw.bid.yahoo.com/search/auction/product?p={tw_query}"},
+        {"category": "台灣",
+         "name": f'🌀 Carousell 旋轉拍賣 ➔ 搜尋「{tw_full}」車友面交',
+         "source": "Carousell 旋轉拍賣", "price_status": "新台幣 / 點進看價",
+         "link": f"https://tw.carousell.com/search/{tw_query}"},
+        {"category": "台灣",
+         "name": f'💬 Facebook 車友社團 ➔ 進社團搜尋「{tw_full}」',
+         "source": "Facebook 越野車友社團", "price_status": "面議 / 私訊",
+         "link": "https://www.facebook.com/groups/374536289309519/"},
+        # ── 🇨🇳 中國線 ──────────────────────────────────
+        {"category": "中國",
+         "name": f'🇨🇳 淘寶 ➔ 搜尋「{tw_full}」',
+         "source": "淘寶", "price_status": "人民幣計價 / 跨境",
+         "link": f"https://s.taobao.com/search?q={tw_query}"},
         # ── 🇯🇵 日本線 ──────────────────────────────────
-        {"name": f'🇯🇵 比比昂日本代標 ➔ 搜尋「{display_jp}」',
+        {"category": "日本",
+         "name": f'🇯🇵 比比昂日本代標 ➔ 搜尋「{display_jp}」',
          "source": "Bibian 比比昂", "price_status": "日幣計價 / 代標",
          "link": f"https://www.bibian.co.jp/search.php?keyword={jp_query}"},
-        {"name": f'🇯🇵 Japan Yatora 代購 ➔ 搜尋「{display_jp}」',
+        {"category": "日本",
+         "name": f'🇯🇵 Japan Yatora 代購 ➔ 搜尋「{display_jp}」',
          "source": "Japan Yatora", "price_status": "日幣計價 / 跨境",
          "link": f"https://www.bibian.co.jp/search.php?keyword={jp_query}"},
-        {"name": f'🇯🇵 Up Garage 日本二手 ➔ 搜尋「{display_jp}」',
+        {"category": "日本",
+         "name": f'🇯🇵 Up Garage 日本二手 ➔ 搜尋「{display_jp}」',
          "source": "Up Garage 日本二手", "price_status": "日幣計價 / 二手現貨",
          "link": f"https://www.upgarage.com/service/ja/stock?keyword={jp_query}"},
-        {"name": f'🇯🇵 Croooober ➔ 搜尋「{display_jp}」日本直送',
+        {"category": "日本",
+         "name": f'🇯🇵 Croooober ➔ 搜尋「{display_jp}」日本直送',
          "source": "Croooober 日本二手", "price_status": "日幣計價 / 海外直郵",
          "link": f"https://www.croooober.com/cparts/search?q={jp_query}"},
-        {"name": f'🇯🇵 日本 Amazon ➔ 搜尋「{display_jp}」全新部品',
+        {"category": "日本",
+         "name": f'🇯🇵 日本 Amazon ➔ 搜尋「{display_jp}」全新部品',
          "source": "日本 Amazon", "price_status": "日幣計價 / 跨境電商",
          "link": f"https://www.amazon.co.jp/s?k={jp_query}"},
-        {"name": f'🇯🇵 日本樂天市場 ➔ 搜尋「{display_jp}」改裝廠直營',
+        {"category": "日本",
+         "name": f'🇯🇵 Mercari 日本二手 ➔ 搜尋「{display_jp}」',
+         "source": "Mercari 日本二手", "price_status": "日幣計價 / 二手拍賣",
+         "link": f"https://jp.mercari.com/search?keyword={jp_query}"},
+        {"category": "日本",
+         "name": f'🇯🇵 日本樂天市場 ➔ 搜尋「{display_jp}」改裝廠直營',
          "source": "日本樂天市場", "price_status": "日幣計價 / 點數折抵",
          "link": f"https://search.rakuten.co.jp/search/mall/{jp_query}/"},
         # ── 🇺🇸 美國線 ──────────────────────────────────
-        {"name": f'🧭 Quadratec Jeep 改裝天堂 ➔ 搜尋「{display_en}」',
+        {"category": "美國",
+         "name": f'🧭 Quadratec Jeep 改裝天堂 ➔ 搜尋「{display_en}」',
          "source": "Quadratec 美國 Jeep", "price_status": "美金計價 / 點進看價",
          "link": f"https://www.quadratec.com/search/{en_query}"},
-        {"name": f'🇺🇸 ExtremeTerrain ➔ 搜尋「{display_en}」',
+        {"category": "美國",
+         "name": f'🇺🇸 Amazon.com ➔ 搜尋「{display_en}」',
+         "source": "Amazon.com", "price_status": "美金計價 / 跨境電商",
+         "link": f"https://www.amazon.com/s?k={en_query}"},
+        {"category": "美國",
+         "name": f'🇺🇸 ExtremeTerrain ➔ 搜尋「{display_en}」',
          "source": "ExtremeTerrain 美國皮卡", "price_status": "美金計價 / 點進看價",
          "link": f"https://www.extremeterrain.com/search?keywords={en_query}"},
-        {"name": f'🇺🇸 4WheelParts ➔ 搜尋「{display_en}」',
+        {"category": "美國",
+         "name": f'🇺🇸 4WheelParts ➔ 搜尋「{display_en}」',
          "source": "4WheelParts 美國越野", "price_status": "美金計價 / 點進看價",
          "link": f"https://www.4wheelparts.com/s/_/?Ntt={en_query}"},
-        {"name": f'🇺🇸 CARiD 汽車百貨 ➔ 搜尋「{display_en}」',
+        {"category": "美國",
+         "name": f'🇺🇸 CARiD 汽車百貨 ➔ 搜尋「{display_en}」',
          "source": "CARiD 汽車百貨", "price_status": "美金計價 / 點進看價",
          "link": f"https://www.carid.com/search/{en_query}"},
-        {"name": f'🇺🇸 Rough Country ➔ 搜尋「{display_en}」底盤套件',
+        {"category": "美國",
+         "name": f'🇺🇸 Rough Country ➔ 搜尋「{display_en}」底盤套件',
          "source": "Rough Country 底盤", "price_status": "美金計價 / 點進看價",
          "link": f"https://www.roughcountry.com/search?q={en_query}"},
-        {"name": f'🇬🇧 Lucky8 路虎越野 ➔ 搜尋「{display_en}」',
+        {"category": "美國",
+         "name": f'🇬🇧 Lucky8 路虎越野 ➔ 搜尋「{display_en}」',
          "source": "Lucky8 LLC 歐美外匯", "price_status": "美金計價 / 點進看價",
          "link": f"https://lucky8llc.com/search?q={en_query}"},
-        # ── 🇹🇼 台灣線 ──────────────────────────────────
-        {"name": f'🦐 蝦皮購物 ➔ 搜尋「{tw_full}」在地現貨',
-         "source": "Shopee 蝦皮購物", "price_status": "新台幣 / 點進看價",
-         "link": f"https://shopee.tw/search?keyword={tw_query}"},
-        {"name": f'🏺 露天市集 ➔ 搜尋「{tw_full}」老車殺肉件',
-         "source": "Ruten 露天市集", "price_status": "新台幣 / 點進看價",
-         "link": f"https://www.ruten.com/find/?q={tw_query}"},
-        {"name": f'🔨 Yahoo 奇摩拍賣 ➔ 搜尋「{tw_full}」競標現場',
-         "source": "Yahoo 奇摩拍賣", "price_status": "新台幣 / 點進看價",
-         "link": f"https://tw.bid.yahoo.com/search/auction/product?p={tw_query}"},
-        {"name": f'🌀 Carousell 旋轉拍賣 ➔ 搜尋「{tw_full}」車友面交',
-         "source": "Carousell 旋轉拍賣", "price_status": "新台幣 / 點進看價",
-         "link": f"https://tw.carousell.com/search/{tw_query}"},
-        {"name": f'💬 Facebook 車友社團 ➔ 搜尋「{tw_full}」拆車現貨貼文',
-         "source": "Facebook 二手社團", "price_status": "面議 / 私訊",
-         "link": f"https://www.facebook.com/search/posts/?q={tw_query}"},
     ]
+
+
+def group_results(results):
+    grouped = {"台灣": [], "中國": [], "日本": [], "美國": []}
+    for item in results:
+        grouped.setdefault(item.get("category", "台灣"), []).append(item)
+    return grouped
 
 
 # ── 路由 ────────────────────────────────────────────────
@@ -254,6 +310,7 @@ def index():
             for row in cursor.fetchall():
                 results.insert(0, {
                     "id":           row["id"],
+                    "category":     "台灣",
                     "name":         row["name"],
                     "source":       row["source"],
                     "price_status": "面議" if row["price"] == 0 else f"NT$ {row['price']}",
@@ -271,6 +328,7 @@ def index():
     return render_template("index.html",
                            results=results,
                            ebay_items=ebay_items,
+                           grouped_results=group_results(results),
                            query=query,
                            brand=brand,
                            translations=translations,

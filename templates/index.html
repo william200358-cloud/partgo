@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PartGo｜越野車零件全球智慧導航</title>
-    <meta name="description" content="PartGo 全球越野與皮卡車件導航，輸入零件名稱與車款，一鍵直達全球各大電商。">
-    <meta property="og:title" content="PartGo｜越野車零件全球智慧導航">
+    <title>PartGo｜越野零件</title>
+    <meta name="description" content="PartGo 全球越野與皮卡車件搜尋工具，輸入零件名稱與車款，一鍵直達全球各大電商。">
+    <meta property="og:title" content="PartGo｜越野零件">
     <meta property="og:description" content="輸入零件名稱＋車款，自動翻英翻日，一鍵搜遍全球電商">
     <meta property="og:type" content="website">
 
@@ -82,6 +82,14 @@
             content: ''; flex: 1; height: 2px;
             background: linear-gradient(to right, #e0e4ea, transparent);
         }
+        .region-title {
+            color: #1b2f3a;
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin: 22px 0 10px;
+            padding-left: 10px;
+            border-left: 4px solid var(--primary);
+        }
 
         /* ── eBay 即時商品 ── */
         .ebay-card {
@@ -151,7 +159,7 @@
 <!-- Hero：移除 badge，移除標題外框 -->
 <div class="hero text-center">
     <div class="container">
-        <h1 class="hero-title mb-2">PartGo 越野零件智慧導航</h1>
+        <h1 class="hero-title mb-2">PartGo 越野零件</h1>
         <p class="hero-subtitle">輸入零件名稱與車款，自動翻譯後一鍵直達全球各大電商</p>
     </div>
 </div>
@@ -238,7 +246,7 @@
                 <div class="ebay-no-key mb-3">
                     💡 設定 eBay App ID 後即可顯示即時價格與競標資訊。
                     在 Render 環境變數加入 <code>EBAY_APP_ID</code> 和 <code>EBAY_CERT_ID</code>。
-                    申請：<a href="https://developer.ebay.com" target="_blank">developer.ebay.com</a>
+                    申請：<a href="https://developer.ebay.com" target="_blank" rel="noopener noreferrer">developer.ebay.com</a>
                 </div>
                 {% elif ebay_items %}
                 <div class="d-flex flex-column gap-2 mb-2">
@@ -255,14 +263,14 @@
                         </div>
                         <div class="text-end" style="min-width:90px;">
                             <div class="ebay-price">{{ item.currency }} {{ item.price }}</div>
-                            <a href="{{ item.url }}" target="_blank" rel="noopener" class="ebay-btn mt-1 d-inline-block">查看 ➔</a>
+                            <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer" class="ebay-btn mt-1 d-inline-block">查看 ➔</a>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 <div class="text-end mb-2">
                     <a href="https://www.ebay.com/sch/i.html?_nkw={{ (translations.en ~ ' ' ~ brand) | urlencode }}"
-                       target="_blank" class="text-secondary small">查看 eBay 全部結果 →</a>
+                       target="_blank" rel="noopener noreferrer" class="text-secondary small">查看 eBay 全部結果 →</a>
                 </div>
                 {% else %}
                 <p class="text-muted small mb-3">eBay 目前沒有找到相關商品。</p>
@@ -280,19 +288,24 @@
                 {% endif %}
             </div>
 
-            <div class="row row-cols-1 row-cols-md-2 g-3">
-                {% for part in results %}
-                <div class="col">
-                    <div class="part-card">
-                        <p class="card-name">{{ part['name'] }}</p>
-                        <div class="card-footer-bar">
-                            <span class="price-status">{{ part['price_status'] }}</span>
-                            <a href="{{ part['link'] }}" target="_blank" rel="noopener" class="btn-goto">查看 ➔</a>
+            {% for region, parts in grouped_results.items() %}
+                {% if parts %}
+                <div class="region-title">{{ region }}</div>
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    {% for part in parts %}
+                    <div class="col">
+                        <div class="part-card">
+                            <p class="card-name">{{ part['name'] }}</p>
+                            <div class="card-footer-bar">
+                                <span class="price-status">{{ part['price_status'] }}</span>
+                                <a href="{{ part['link'] }}" target="_blank" rel="noopener noreferrer" class="btn-goto">查看 ➔</a>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
+                {% endif %}
+            {% endfor %}
             {% endif %}
 
         </div>
@@ -300,7 +313,7 @@
 </div>
 
 <footer class="site-footer">
-    PartGo 全球越野零件智慧導航 &nbsp;|&nbsp;
+    PartGo 全球越野零件 &nbsp;|&nbsp;
     <a href="/admin">後台管理</a>
 </footer>
 
@@ -349,10 +362,20 @@ const dict = [
 
 function previewTranslation(kw) {
     if (!kw) return '輸入後自動預覽翻譯結果';
+    let enKw = kw;
+    let jpKw = kw;
+    let matched = false;
     for (const [keys, en, jp] of dict) {
-        if (keys.some(k => kw.includes(k))) {
-            return `<span class="tag">EN</span>${en} &nbsp;<span class="tag jp">JP</span>${jp}`;
+        for (const key of keys.sort((a, b) => b.length - a.length)) {
+            if (enKw.includes(key) || jpKw.includes(key)) {
+                enKw = enKw.split(key).join(en);
+                jpKw = jpKw.split(key).join(jp);
+                matched = true;
+            }
         }
+    }
+    if (matched) {
+        return `<span class="tag">EN</span>${enKw.trim()} &nbsp;<span class="tag jp">JP</span>${jpKw.trim()}`;
     }
     return `<span style="color:#999">將直接以原文搜尋</span>`;
 }
