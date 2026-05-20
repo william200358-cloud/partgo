@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PartGo｜越野車零件全球智慧導航</title>
-    <meta name="description" content="PartGo 全球越野與皮卡車件導航，自動將中文零件翻譯為英文、日文，一鍵直達全球16大電商。">
-    <!-- OG Tags -->
+    <meta name="description" content="PartGo 全球越野與皮卡車件導航，輸入零件名稱與車款，一鍵直達全球各大電商。">
     <meta property="og:title" content="PartGo｜越野車零件全球智慧導航">
-    <meta property="og:description" content="輸入中文零件名稱，自動翻英翻日，一鍵搜遍全球16大渠道">
+    <meta property="og:description" content="輸入零件名稱＋車款，自動翻英翻日，一鍵搜遍全球電商">
     <meta property="og:type" content="website">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,67 +16,40 @@
         :root {
             --primary: #e8a020;
             --dark: #111416;
-            --mid: #1e2528;
-            --card-bg: #ffffff;
             --border: #e4e8ec;
         }
         * { box-sizing: border-box; }
-        body {
-            background: #f0f2f5;
-            font-family: 'Noto Sans TC', sans-serif;
-            color: #1a1a1a;
-        }
+        body { background: #f0f2f5; font-family: 'Noto Sans TC', sans-serif; color: #1a1a1a; }
 
         /* ── Hero ── */
         .hero {
             background: linear-gradient(135deg, #0f1923 0%, #1b2f3a 55%, #243b47 100%);
-            padding: 60px 0 80px;
-            position: relative;
-            overflow: hidden;
+            padding: 52px 0 76px;
+            position: relative; overflow: hidden;
         }
         .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
+            content: ''; position: absolute; inset: 0;
             background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .hero-title {
             font-family: 'Bebas Neue', sans-serif;
             font-size: clamp(2.4rem, 6vw, 4rem);
-            letter-spacing: 3px;
-            color: #fff;
+            letter-spacing: 3px; color: #fff;
             text-shadow: 0 2px 20px rgba(0,0,0,0.4);
         }
-        .hero-subtitle { color: rgba(255,255,255,0.7); font-size: 1rem; }
-        .hero-badge {
-            display: inline-block;
-            background: rgba(232,160,32,0.15);
-            border: 1px solid rgba(232,160,32,0.4);
-            color: var(--primary);
-            font-size: 0.78rem;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 14px;
-            letter-spacing: 1px;
-        }
+        .hero-subtitle { color: rgba(255,255,255,0.65); font-size: 0.95rem; }
 
         /* ── Search Card ── */
         .search-card {
-            background: #fff;
-            border-radius: 20px;
+            background: #fff; border-radius: 20px;
             box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-            padding: 28px 32px;
-            margin-top: -42px;
-            position: relative;
-            z-index: 10;
+            padding: 28px 32px; margin-top: -42px;
+            position: relative; z-index: 10;
         }
         .search-card .form-control,
         .search-card .form-select {
-            border: 2px solid #e0e4ea;
-            border-radius: 10px;
-            height: 52px;
-            font-size: 0.95rem;
-            transition: border-color .2s;
+            border: 2px solid #e0e4ea; border-radius: 10px;
+            height: 52px; font-size: 0.95rem; transition: border-color .2s;
         }
         .search-card .form-control:focus,
         .search-card .form-select:focus {
@@ -85,178 +57,88 @@
             box-shadow: 0 0 0 3px rgba(232,160,32,0.15);
         }
         .btn-search {
-            background: var(--primary);
-            color: #111;
-            border: none;
-            border-radius: 10px;
-            height: 52px;
-            font-weight: 700;
-            font-size: 1rem;
-            letter-spacing: 1px;
+            background: var(--primary); color: #111; border: none;
+            border-radius: 10px; height: 52px;
+            font-weight: 700; font-size: 1rem; letter-spacing: 1px;
             transition: all .2s;
         }
         .btn-search:hover { background: #d4901a; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(232,160,32,0.4); }
 
         /* 翻譯預覽 */
-        .translate-preview {
-            font-size: 0.82rem;
-            color: #666;
-            margin-top: 8px;
-            min-height: 20px;
-        }
+        .translate-preview { font-size: 0.82rem; color: #666; margin-top: 8px; min-height: 20px; }
         .translate-preview .tag {
-            display: inline-block;
-            background: #f0f4ff;
-            color: #3a5bcc;
-            border-radius: 6px;
-            padding: 2px 8px;
-            margin-right: 6px;
-            font-weight: 600;
+            display: inline-block; background: #f0f4ff; color: #3a5bcc;
+            border-radius: 6px; padding: 2px 8px; margin-right: 6px; font-weight: 600;
         }
         .translate-preview .tag.jp { background: #fff0f0; color: #cc3a3a; }
 
-        /* ── Result Cards ── */
+        /* ── Section title ── */
         .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #333;
-            margin: 36px 0 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 1.05rem; font-weight: 700; color: #333;
+            margin: 32px 0 14px;
+            display: flex; align-items: center; gap: 8px;
         }
         .section-title::after {
-            content: '';
-            flex: 1;
-            height: 2px;
+            content: ''; flex: 1; height: 2px;
             background: linear-gradient(to right, #e0e4ea, transparent);
-        }
-        .part-card {
-            background: #fff;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            padding: 20px;
-            height: 100%;
-            transition: transform .2s, box-shadow .2s, border-color .2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .part-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 28px rgba(0,0,0,0.10);
-            border-color: var(--primary);
-        }
-        .card-source-badge {
-            display: inline-block;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 20px;
-            background: #1e2528;
-            color: var(--primary);
-            letter-spacing: .5px;
-            margin-bottom: 10px;
-        }
-        .card-name {
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: #222;
-            line-height: 1.55;
-            flex: 1;
-        }
-        .card-footer-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 14px;
-            padding-top: 12px;
-            border-top: 1px solid #f0f2f5;
-        }
-        .price-status {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #1a7a40;
-        }
-        .btn-goto {
-            background: var(--dark);
-            color: var(--primary);
-            border: none;
-            border-radius: 8px;
-            padding: 6px 16px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: background .2s;
-            white-space: nowrap;
-        }
-        .btn-goto:hover { background: #2c3e50; color: var(--primary); }
-
-        /* ── 冷啟動提示 ── */
-        #wake-banner {
-            display: none;
-            background: linear-gradient(90deg, #1b2f3a, #243b47);
-            color: #e8a020;
-            text-align: center;
-            font-size: 0.85rem;
-            padding: 8px;
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            z-index: 999;
         }
 
         /* ── eBay 即時商品 ── */
-        .ebay-section { margin-top: 36px; }
         .ebay-card {
-            background: #fff;
-            border-radius: 14px;
-            border: 2px solid #e6a817;
-            padding: 14px 16px;
-            display: flex;
-            gap: 14px;
-            align-items: center;
+            background: #fff; border-radius: 14px; border: 2px solid #e6a817;
+            padding: 14px 16px; display: flex; gap: 14px; align-items: center;
             transition: box-shadow .2s, transform .2s;
         }
         .ebay-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(232,160,32,0.18); }
-        .ebay-thumb {
-            width: 72px; height: 72px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #f0f2f5;
-            flex-shrink: 0;
-        }
-        .ebay-thumb-placeholder {
-            width: 72px; height: 72px;
-            border-radius: 8px;
-            background: #f0f2f5;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem; flex-shrink: 0;
-        }
-        .ebay-title { font-size: 0.85rem; font-weight: 600; color: #222; line-height: 1.4; flex: 1; }
+        .ebay-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; background: #f0f2f5; flex-shrink: 0; }
+        .ebay-thumb-placeholder { width: 72px; height: 72px; border-radius: 8px; background: #f0f2f5; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+        .ebay-item-title { font-size: 0.85rem; font-weight: 600; color: #222; line-height: 1.4; flex: 1; }
         .ebay-price { font-size: 1.1rem; font-weight: 800; color: #c84b11; white-space: nowrap; }
         .ebay-condition { font-size: 0.72rem; color: #888; margin-top: 2px; }
         .ebay-btn {
-            background: #e8a020; color: #111; border: none;
-            border-radius: 8px; padding: 6px 14px;
-            font-size: 0.8rem; font-weight: 700;
-            text-decoration: none; white-space: nowrap;
-            transition: background .2s;
+            background: #e8a020; color: #111; border: none; border-radius: 8px;
+            padding: 6px 14px; font-size: 0.8rem; font-weight: 700;
+            text-decoration: none; white-space: nowrap; transition: background .2s;
         }
         .ebay-btn:hover { background: #d4901a; color: #111; }
         .ebay-no-key {
-            background: #fffbf0; border: 1px dashed #e8a020;
-            border-radius: 12px; padding: 16px 20px;
-            font-size: 0.85rem; color: #7a5c00;
+            background: #fffbf0; border: 1px dashed #e8a020; border-radius: 12px;
+            padding: 14px 18px; font-size: 0.83rem; color: #7a5c00;
         }
-        .ebay-no-key code { background: #fff3cd; padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; }
+        .ebay-no-key code { background: #fff3cd; padding: 2px 6px; border-radius: 4px; }
+
+        /* ── 結果卡片（無渠道badge版）── */
+        .part-card {
+            background: #fff; border-radius: 14px; border: 1px solid var(--border);
+            padding: 18px 20px; height: 100%;
+            transition: transform .2s, box-shadow .2s, border-color .2s;
+            display: flex; flex-direction: column;
+        }
+        .part-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.10); border-color: var(--primary); }
+        .card-name { font-size: 0.92rem; font-weight: 600; color: #222; line-height: 1.55; flex: 1; margin: 0; }
+        .card-footer-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 14px; padding-top: 12px; border-top: 1px solid #f0f2f5;
+        }
+        .price-status { font-size: 0.88rem; font-weight: 700; color: #1a7a40; }
+        .btn-goto {
+            background: var(--dark); color: var(--primary); border: none;
+            border-radius: 8px; padding: 6px 18px; font-size: 0.82rem; font-weight: 700;
+            text-decoration: none; transition: background .2s; white-space: nowrap;
+        }
+        .btn-goto:hover { background: #2c3e50; color: var(--primary); }
+
+        /* ── 冷啟動 ── */
+        #wake-banner {
+            display: none; background: linear-gradient(90deg, #1b2f3a, #243b47);
+            color: #e8a020; text-align: center; font-size: 0.85rem; padding: 8px;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
+        }
 
         /* ── Footer ── */
         .site-footer {
-            background: var(--dark);
-            color: rgba(255,255,255,0.4);
-            text-align: center;
-            padding: 20px;
-            font-size: 0.78rem;
-            margin-top: 60px;
+            background: var(--dark); color: rgba(255,255,255,0.4);
+            text-align: center; padding: 20px; font-size: 0.78rem; margin-top: 60px;
         }
         .site-footer a { color: rgba(255,255,255,0.3); text-decoration: none; }
         .site-footer a:hover { color: var(--primary); }
@@ -264,14 +146,13 @@
 </head>
 <body>
 
-<!-- 冷啟動提示 banner -->
 <div id="wake-banner">⏳ 系統正在喚醒中，首次載入可能需要 20–30 秒，請稍候…</div>
 
+<!-- Hero：移除 badge，移除標題外框 -->
 <div class="hero text-center">
     <div class="container">
-        <div class="hero-badge">🌏 16 大全球渠道 · 自動中翻英翻日</div>
         <h1 class="hero-title mb-2">PartGo 越野零件智慧導航</h1>
-        <p class="hero-subtitle">輸入中文零件名稱，自動翻譯後一鍵直達全球各大電商現場</p>
+        <p class="hero-subtitle">輸入零件名稱與車款，自動翻譯後一鍵直達全球各大電商</p>
     </div>
 </div>
 
@@ -282,10 +163,11 @@
             <div class="search-card mb-2">
                 <form action="/" method="get" id="searchForm">
                     <div class="row g-3">
+                        <!-- 零件名稱 -->
                         <div class="col-md-5">
                             <input type="text" name="query" id="queryInput"
                                 class="form-control"
-                                placeholder="輸入零件名稱，例：避震、地墊、保桿、絞盤…"
+                                placeholder="零件名稱，例：避震、地墊、保桿…"
                                 value="{{ query }}" autocomplete="off">
                             <div class="translate-preview" id="translatePreview">
                                 {% if query and translations and translations.en != query %}
@@ -297,39 +179,47 @@
                                 {% endif %}
                             </div>
                         </div>
+
+                        <!-- 汽車品牌款式（越野）下拉 -->
                         <div class="col-md-5">
                             <select name="brand" class="form-select">
-                                <option value="選擇品牌">🌏 全部 16 大渠道</option>
-                                <optgroup label="💬 社群交流與代購">
-                                    <option value="Facebook" {% if brand == 'Facebook' %}selected{% endif %}>Facebook 車友二手貼文</option>
-                                    <option value="比比昂" {% if brand == '比比昂' %}selected{% endif %}>Bibian 比比昂</option>
-                                    <option value="Yatora" {% if brand == 'Yatora' %}selected{% endif %}>Japan Yatora</option>
+                                <option value="">🚙 選擇汽車品牌款式（越野）</option>
+                                <optgroup label="🇯🇵 日系越野 / 皮卡">
+                                    <option value="Toyota Land Cruiser" {% if brand == 'Toyota Land Cruiser' %}selected{% endif %}>Toyota Land Cruiser（陸巡）</option>
+                                    <option value="Toyota Hilux" {% if brand == 'Toyota Hilux' %}selected{% endif %}>Toyota Hilux（海力士）</option>
+                                    <option value="Toyota 4Runner" {% if brand == 'Toyota 4Runner' %}selected{% endif %}>Toyota 4Runner</option>
+                                    <option value="Toyota Tacoma" {% if brand == 'Toyota Tacoma' %}selected{% endif %}>Toyota Tacoma</option>
+                                    <option value="Toyota Tundra" {% if brand == 'Toyota Tundra' %}selected{% endif %}>Toyota Tundra</option>
+                                    <option value="Nissan Patrol" {% if brand == 'Nissan Patrol' %}selected{% endif %}>Nissan Patrol（派翠）</option>
+                                    <option value="Nissan Navara" {% if brand == 'Nissan Navara' %}selected{% endif %}>Nissan Navara（納瓦拉）</option>
+                                    <option value="Mitsubishi Pajero" {% if brand == 'Mitsubishi Pajero' %}selected{% endif %}>Mitsubishi Pajero（帕傑羅）</option>
+                                    <option value="Mitsubishi L200 Triton" {% if brand == 'Mitsubishi L200 Triton' %}selected{% endif %}>Mitsubishi Triton（三菱 L200）</option>
+                                    <option value="Isuzu D-Max" {% if brand == 'Isuzu D-Max' %}selected{% endif %}>Isuzu D-Max</option>
+                                    <option value="Suzuki Jimny" {% if brand == 'Suzuki Jimny' %}selected{% endif %}>Suzuki Jimny（吉米）</option>
                                 </optgroup>
-                                <optgroup label="🇯🇵 日本黃金線">
-                                    <option value="Up Garage" {% if brand == 'Up Garage' %}selected{% endif %}>Up Garage 日本最大二手廠</option>
-                                    <option value="Croooober" {% if brand == 'Croooober' %}selected{% endif %}>Croooober 日本二手精選</option>
-                                    <option value="Amazon" {% if brand == 'Amazon' %}selected{% endif %}>日本 Amazon</option>
-                                    <option value="樂天" {% if brand == '樂天' %}selected{% endif %}>日本樂天市場</option>
+                                <optgroup label="🇺🇸 美系越野 / 皮卡">
+                                    <option value="Jeep Wrangler" {% if brand == 'Jeep Wrangler' %}selected{% endif %}>Jeep Wrangler（牧馬人）</option>
+                                    <option value="Jeep Gladiator" {% if brand == 'Jeep Gladiator' %}selected{% endif %}>Jeep Gladiator</option>
+                                    <option value="Ford Bronco" {% if brand == 'Ford Bronco' %}selected{% endif %}>Ford Bronco</option>
+                                    <option value="Ford F-150 Raptor" {% if brand == 'Ford F-150 Raptor' %}selected{% endif %}>Ford F-150 Raptor</option>
+                                    <option value="Ford Ranger" {% if brand == 'Ford Ranger' %}selected{% endif %}>Ford Ranger</option>
+                                    <option value="Chevrolet Colorado ZR2" {% if brand == 'Chevrolet Colorado ZR2' %}selected{% endif %}>Chevrolet Colorado ZR2</option>
+                                    <option value="RAM 1500 TRX" {% if brand == 'RAM 1500 TRX' %}selected{% endif %}>RAM 1500 TRX</option>
                                 </optgroup>
-                                <optgroup label="🇺🇸 美國改裝皮卡線">
-                                    <option value="Quadratec" {% if brand == 'Quadratec' %}selected{% endif %}>Quadratec (Jeep 聖地)</option>
-                                    <option value="ExtremeTerrain" {% if brand == 'ExtremeTerrain' %}selected{% endif %}>ExtremeTerrain</option>
-                                    <option value="4WheelParts" {% if brand == '4WheelParts' %}selected{% endif %}>4WheelParts</option>
-                                    <option value="CARiD" {% if brand == 'CARiD' %}selected{% endif %}>CARiD</option>
-                                    <option value="Rough Country" {% if brand == 'Rough Country' %}selected{% endif %}>Rough Country</option>
-                                    <option value="Lucky8" {% if brand == 'Lucky8' %}selected{% endif %}>Lucky8 LLC</option>
-                                    <option value="eBay" {% if brand == 'eBay' %}selected{% endif %}>eBay 全球外匯</option>
+                                <optgroup label="🇬🇧 英系越野">
+                                    <option value="Land Rover Defender" {% if brand == 'Land Rover Defender' %}selected{% endif %}>Land Rover Defender</option>
+                                    <option value="Land Rover Discovery" {% if brand == 'Land Rover Discovery' %}selected{% endif %}>Land Rover Discovery</option>
                                 </optgroup>
-                                <optgroup label="🇹🇼 台灣在地線">
-                                    <option value="蝦皮" {% if brand == '蝦皮' %}selected{% endif %}>Shopee 蝦皮購物</option>
-                                    <option value="露天" {% if brand == '露天' %}selected{% endif %}>Ruten 露天市集</option>
-                                    <option value="Yahoo" {% if brand == 'Yahoo' %}selected{% endif %}>Yahoo 奇摩拍賣</option>
-                                    <option value="Carousell" {% if brand == 'Carousell' %}selected{% endif %}>Carousell 旋轉拍賣</option>
+                                <optgroup label="🇰🇷 韓系越野">
+                                    <option value="Hyundai Santa Cruz" {% if brand == 'Hyundai Santa Cruz' %}selected{% endif %}>Hyundai Santa Cruz</option>
+                                    <option value="Ssangyong Rexton" {% if brand == 'Ssangyong Rexton' %}selected{% endif %}>Ssangyong Rexton</option>
                                 </optgroup>
                             </select>
                         </div>
+
+                        <!-- 搜尋按鈕 -->
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-search w-100">發動 ➔</button>
+                            <button type="submit" class="btn btn-search w-100">搜尋 🔍</button>
                         </div>
                     </div>
                 </form>
@@ -337,18 +227,18 @@
 
             {% if query %}
 
-            {# ── eBay 即時商品區塊 ── #}
-            <div class="ebay-section">
+            {# ── eBay 即時商品 ── #}
+            <div class="mt-4">
                 <div class="section-title">
                     🛒 eBay 即時商品
-                    <small class="text-muted fw-normal ms-2" style="font-size:.78rem;">搜尋：{{ translations.en }}</small>
+                    <small class="text-muted fw-normal ms-2" style="font-size:.78rem;">搜尋：{{ translations.en }}{% if brand %} {{ brand }}{% endif %}</small>
                 </div>
 
                 {% if not ebay_configured %}
                 <div class="ebay-no-key mb-3">
-                    💡 設定 eBay App ID 後即可顯示即時價格與競標資訊。<br>
-                    在 Render 環境變數加入 <code>EBAY_APP_ID</code>（Client ID）和 <code>EBAY_CERT_ID</code>（Client Secret）。<br>
-                    申請免費帳號：<a href="https://developer.ebay.com" target="_blank">developer.ebay.com</a>
+                    💡 設定 eBay App ID 後即可顯示即時價格與競標資訊。
+                    在 Render 環境變數加入 <code>EBAY_APP_ID</code> 和 <code>EBAY_CERT_ID</code>。
+                    申請：<a href="https://developer.ebay.com" target="_blank">developer.ebay.com</a>
                 </div>
                 {% elif ebay_items %}
                 <div class="d-flex flex-column gap-2 mb-2">
@@ -360,31 +250,32 @@
                             <div class="ebay-thumb-placeholder">🔩</div>
                         {% endif %}
                         <div class="flex-grow-1 overflow-hidden">
-                            <div class="ebay-title">{{ item.title[:80] }}{% if item.title|length > 80 %}…{% endif %}</div>
+                            <div class="ebay-item-title">{{ item.title[:80] }}{% if item.title|length > 80 %}…{% endif %}</div>
                             <div class="ebay-condition">{{ item.condition }}</div>
                         </div>
                         <div class="text-end" style="min-width:90px;">
                             <div class="ebay-price">{{ item.currency }} {{ item.price }}</div>
-                            <a href="{{ item.url }}" target="_blank" rel="noopener" class="ebay-btn mt-1 d-inline-block">競標 ➔</a>
+                            <a href="{{ item.url }}" target="_blank" rel="noopener" class="ebay-btn mt-1 d-inline-block">查看 ➔</a>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 <div class="text-end mb-2">
-                    <a href="https://www.ebay.com/sch/i.html?_nkw={{ translations.en | urlencode }}" target="_blank"
-                       class="text-secondary small">查看 eBay 全部結果 →</a>
+                    <a href="https://www.ebay.com/sch/i.html?_nkw={{ (translations.en ~ ' ' ~ brand) | urlencode }}"
+                       target="_blank" class="text-secondary small">查看 eBay 全部結果 →</a>
                 </div>
                 {% else %}
                 <p class="text-muted small mb-3">eBay 目前沒有找到相關商品。</p>
                 {% endif %}
             </div>
 
-            {# ── 全球導航渠道 ── #}
+            {# ── 日本 → 美國 → 台灣 順序的導航渠道（無 source badge）── #}
             <div class="section-title">
-                🌏 全球 {{ results|length }} 條導航通道
+                🌏 全球導航通道
                 {% if translations and translations.en != query %}
                     <small class="text-muted fw-normal ms-2" style="font-size:.8rem;">
-                        英文：{{ translations.en }} ／ 日文：{{ translations.jp }}
+                        EN: {{ translations.en }}{% if brand %} {{ brand }}{% endif %}
+                        ／ JP: {{ translations.jp }}{% if brand %} {{ brand }}{% endif %}
                     </small>
                 {% endif %}
             </div>
@@ -393,11 +284,10 @@
                 {% for part in results %}
                 <div class="col">
                     <div class="part-card">
-                        <span class="card-source-badge">{{ part['source'] }}</span>
                         <p class="card-name">{{ part['name'] }}</p>
                         <div class="card-footer-bar">
                             <span class="price-status">{{ part['price_status'] }}</span>
-                            <a href="{{ part['link'] }}" target="_blank" rel="noopener" class="btn-goto">直擊現場 ➔</a>
+                            <a href="{{ part['link'] }}" target="_blank" rel="noopener" class="btn-goto">查看 ➔</a>
                         </div>
                     </div>
                 </div>
@@ -415,7 +305,7 @@
 </footer>
 
 <script>
-// 冷啟動提示：頁面首次進入時顯示 3 秒
+// 冷啟動提示
 (function() {
     const key = 'pg_woken';
     if (!sessionStorage.getItem(key)) {
@@ -425,16 +315,16 @@
     }
 })();
 
-// 翻譯即時預覽對照表（輕量版，與後端同步）
+// 翻譯即時預覽
 const dict = [
     [["避震","懸吊","減震","避振"], "suspension lift kit", "サスペンション"],
     [["彈簧","螺旋彈簧"], "coil spring", "コイルスプリング"],
     [["避震筒","避震器"], "shock absorber", "ショックアブソーバー"],
     [["輪框","輪圈","鋁圈","鋼圈"], "off-road wheels", "オフロードホイール"],
     [["輪胎","越野胎","MT胎","AT胎"], "off-road tires", "オフロードタイヤ"],
-    [["保桿","防撞桿","保險桿","前保","後保"], "bumper", "バンパー"],
     [["前保桿","前保"], "front bumper", "フロントバンパー"],
     [["後保桿","後保"], "rear bumper", "リアバンパー"],
+    [["保桿","防撞桿","保險桿"], "bumper", "バンパー"],
     [["側步踏板","踏板"], "running board", "サイドステップ"],
     [["翼子板","葉子板","輪弧"], "fender flare", "フェンダーフレア"],
     [["護板","底盤護板"], "skid plate", "アンダーガード"],
@@ -464,7 +354,7 @@ function previewTranslation(kw) {
             return `<span class="tag">EN</span>${en} &nbsp;<span class="tag jp">JP</span>${jp}`;
         }
     }
-    return `<span style="color:#999">找不到預設翻譯，將直接以原文搜尋</span>`;
+    return `<span style="color:#999">將直接以原文搜尋</span>`;
 }
 
 const input = document.getElementById('queryInput');
@@ -475,6 +365,5 @@ if (input && preview) {
     });
 }
 </script>
-
 </body>
 </html>

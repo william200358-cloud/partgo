@@ -141,64 +141,90 @@ def _get_ebay_token():
     return resp.json().get("access_token", "")
 
 
-# ── 靜態導航渠道清單 ────────────────────────────────────
-def build_results(query, translations):
-    en_query = urllib.parse.quote(translations["en"])
-    jp_query = urllib.parse.quote(translations["jp"])
-    tw_query = urllib.parse.quote(query)
+# ── 靜態導航渠道清單（順序：日本 → 美國 → 台灣）────────
+def build_results(query, translations, brand=''):
+    """
+    搜尋關鍵字 = 零件翻譯詞 + 車款（若有選）
+    順序：🇯🇵 日本 → 🇺🇸 美國 → 🇹🇼 台灣
+    Facebook 移至台灣區最後
+    """
+    # 組合搜尋字串
+    en_part = translations["en"]
+    jp_part = translations["jp"]
+    tw_part = query
+
+    if brand:
+        en_full = f"{en_part} {brand}"
+        # 日文搜尋保留英文車款，因日本站多能辨識英文車款
+        jp_full = f"{jp_part} {brand}"
+        tw_full = f"{tw_part} {brand}"
+    else:
+        en_full = en_part
+        jp_full = jp_part
+        tw_full = tw_part
+
+    en_query = urllib.parse.quote(en_full)
+    jp_query = urllib.parse.quote(jp_full)
+    tw_query = urllib.parse.quote(tw_full)
+
+    display_en = en_full
+    display_jp = jp_full
 
     return [
-        {"name": f'💬 Facebook 車友社團 ➔ 搜尋「{query}」拆車現貨貼文',
-         "source": "Facebook 二手社團", "price_status": "面議 / 私訊",
-         "ebay": False, "link": f"https://www.facebook.com/search/posts/?q={tw_query}"},
-        {"name": f'🇯🇵 比比昂日本代標 ➔ 搜尋「{translations["jp"]}」',
+        # ── 🇯🇵 日本線 ──────────────────────────────────
+        {"name": f'🇯🇵 比比昂日本代標 ➔ 搜尋「{display_jp}」',
          "source": "Bibian 比比昂", "price_status": "日幣計價 / 代標",
-         "ebay": False, "link": f"https://www.bibian.co.jp/search.php?keyword={jp_query}"},
-        {"name": f'🇯🇵 Japan Yatora 代購 ➔ 搜尋「{translations["jp"]}」',
+         "link": f"https://www.bibian.co.jp/search.php?keyword={jp_query}"},
+        {"name": f'🇯🇵 Japan Yatora 代購 ➔ 搜尋「{display_jp}」',
          "source": "Japan Yatora", "price_status": "日幣計價 / 跨境",
-         "ebay": False, "link": f"https://www.bibian.co.jp/search.php?keyword={jp_query}"},
-        {"name": f'🇯🇵 Up Garage 日本二手 ➔ 搜尋「{translations["jp"]}」',
+         "link": f"https://www.bibian.co.jp/search.php?keyword={jp_query}"},
+        {"name": f'🇯🇵 Up Garage 日本二手 ➔ 搜尋「{display_jp}」',
          "source": "Up Garage 日本二手", "price_status": "日幣計價 / 二手現貨",
-         "ebay": False, "link": f"https://www.upgarage.com/service/ja/stock?keyword={jp_query}"},
-        {"name": f'🇯🇵 Croooober ➔ 搜尋「{translations["jp"]}」日本直送',
+         "link": f"https://www.upgarage.com/service/ja/stock?keyword={jp_query}"},
+        {"name": f'🇯🇵 Croooober ➔ 搜尋「{display_jp}」日本直送',
          "source": "Croooober 日本二手", "price_status": "日幣計價 / 海外直郵",
-         "ebay": False, "link": f"https://www.croooober.com/cparts/search?q={jp_query}"},
-        {"name": f'🇯🇵 日本 Amazon ➔ 搜尋「{translations["jp"]}」全新部品',
+         "link": f"https://www.croooober.com/cparts/search?q={jp_query}"},
+        {"name": f'🇯🇵 日本 Amazon ➔ 搜尋「{display_jp}」全新部品',
          "source": "日本 Amazon", "price_status": "日幣計價 / 跨境電商",
-         "ebay": False, "link": f"https://www.amazon.co.jp/s?k={jp_query}"},
-        {"name": f'🇯🇵 日本樂天市場 ➔ 搜尋「{translations["jp"]}」改裝廠直營',
+         "link": f"https://www.amazon.co.jp/s?k={jp_query}"},
+        {"name": f'🇯🇵 日本樂天市場 ➔ 搜尋「{display_jp}」改裝廠直營',
          "source": "日本樂天市場", "price_status": "日幣計價 / 點數折抵",
-         "ebay": False, "link": f"https://search.rakuten.co.jp/search/mall/{jp_query}/"},
-        {"name": f'🧭 Quadratec Jeep 改裝天堂 ➔ 搜尋「{translations["en"]}」',
+         "link": f"https://search.rakuten.co.jp/search/mall/{jp_query}/"},
+        # ── 🇺🇸 美國線 ──────────────────────────────────
+        {"name": f'🧭 Quadratec Jeep 改裝天堂 ➔ 搜尋「{display_en}」',
          "source": "Quadratec 美國 Jeep", "price_status": "美金計價 / 點進看價",
-         "ebay": False, "link": f"https://www.quadratec.com/search/{en_query}"},
-        {"name": f'🇺🇸 ExtremeTerrain ➔ 搜尋「{translations["en"]}」',
+         "link": f"https://www.quadratec.com/search/{en_query}"},
+        {"name": f'🇺🇸 ExtremeTerrain ➔ 搜尋「{display_en}」',
          "source": "ExtremeTerrain 美國皮卡", "price_status": "美金計價 / 點進看價",
-         "ebay": False, "link": f"https://www.extremeterrain.com/search?keywords={en_query}"},
-        {"name": f'🇺🇸 4WheelParts ➔ 搜尋「{translations["en"]}」大腳套件',
+         "link": f"https://www.extremeterrain.com/search?keywords={en_query}"},
+        {"name": f'🇺🇸 4WheelParts ➔ 搜尋「{display_en}」',
          "source": "4WheelParts 美國越野", "price_status": "美金計價 / 點進看價",
-         "ebay": False, "link": f"https://www.4wheelparts.com/s/_/?Ntt={en_query}"},
-        {"name": f'🇺🇸 CARiD 汽車百貨 ➔ 搜尋「{translations["en"]}」',
+         "link": f"https://www.4wheelparts.com/s/_/?Ntt={en_query}"},
+        {"name": f'🇺🇸 CARiD 汽車百貨 ➔ 搜尋「{display_en}」',
          "source": "CARiD 汽車百貨", "price_status": "美金計價 / 點進看價",
-         "ebay": False, "link": f"https://www.carid.com/search/{en_query}"},
-        {"name": f'🇺🇸 Rough Country ➔ 搜尋「{translations["en"]}」底盤套件',
+         "link": f"https://www.carid.com/search/{en_query}"},
+        {"name": f'🇺🇸 Rough Country ➔ 搜尋「{display_en}」底盤套件',
          "source": "Rough Country 底盤", "price_status": "美金計價 / 點進看價",
-         "ebay": False, "link": f"https://www.roughcountry.com/search?q={en_query}"},
-        {"name": f'🇬🇧 Lucky8 路虎越野中心 ➔ 搜尋「{translations["en"]}」',
+         "link": f"https://www.roughcountry.com/search?q={en_query}"},
+        {"name": f'🇬🇧 Lucky8 路虎越野 ➔ 搜尋「{display_en}」',
          "source": "Lucky8 LLC 歐美外匯", "price_status": "美金計價 / 點進看價",
-         "ebay": False, "link": f"https://lucky8llc.com/search?q={en_query}"},
-        {"name": f'🦐 蝦皮購物 ➔ 搜尋「{query}」在地現貨',
+         "link": f"https://lucky8llc.com/search?q={en_query}"},
+        # ── 🇹🇼 台灣線 ──────────────────────────────────
+        {"name": f'🦐 蝦皮購物 ➔ 搜尋「{tw_full}」在地現貨',
          "source": "Shopee 蝦皮購物", "price_status": "新台幣 / 點進看價",
-         "ebay": False, "link": f"https://shopee.tw/search?keyword={tw_query}"},
-        {"name": f'🏺 露天市集 ➔ 搜尋「{query}」老車殺肉件',
+         "link": f"https://shopee.tw/search?keyword={tw_query}"},
+        {"name": f'🏺 露天市集 ➔ 搜尋「{tw_full}」老車殺肉件',
          "source": "Ruten 露天市集", "price_status": "新台幣 / 點進看價",
-         "ebay": False, "link": f"https://www.ruten.com/find/?q={tw_query}"},
-        {"name": f'🔨 Yahoo 奇摩拍賣 ➔ 搜尋「{query}」競標現場',
+         "link": f"https://www.ruten.com/find/?q={tw_query}"},
+        {"name": f'🔨 Yahoo 奇摩拍賣 ➔ 搜尋「{tw_full}」競標現場',
          "source": "Yahoo 奇摩拍賣", "price_status": "新台幣 / 點進看價",
-         "ebay": False, "link": f"https://tw.bid.yahoo.com/search/auction/product?p={tw_query}"},
-        {"name": f'🌀 Carousell 旋轉拍賣 ➔ 搜尋「{query}」車友面交',
+         "link": f"https://tw.bid.yahoo.com/search/auction/product?p={tw_query}"},
+        {"name": f'🌀 Carousell 旋轉拍賣 ➔ 搜尋「{tw_full}」車友面交',
          "source": "Carousell 旋轉拍賣", "price_status": "新台幣 / 點進看價",
-         "ebay": False, "link": f"https://tw.carousell.com/search/{tw_query}"},
+         "link": f"https://tw.carousell.com/search/{tw_query}"},
+        {"name": f'💬 Facebook 車友社團 ➔ 搜尋「{tw_full}」拆車現貨貼文',
+         "source": "Facebook 二手社團", "price_status": "面議 / 私訊",
+         "link": f"https://www.facebook.com/search/posts/?q={tw_query}"},
     ]
 
 
@@ -213,10 +239,11 @@ def index():
 
     if query:
         translations = translate_keyword(query)
-        results      = build_results(query, translations)
+        results      = build_results(query, translations, brand=brand)
 
-        # eBay 即時商品（最多 5 筆，有 App ID 才抓）
-        ebay_items = fetch_ebay_items(translations["en"], limit=5)
+        # eBay 即時商品：零件英文 + 車款一起搜
+        ebay_search = f"{translations['en']} {brand}".strip() if brand else translations["en"]
+        ebay_items  = fetch_ebay_items(ebay_search, limit=5)
 
         # 資料庫私房網址（排最前）
         try:
@@ -231,16 +258,11 @@ def index():
                     "source":       row["source"],
                     "price_status": "面議" if row["price"] == 0 else f"NT$ {row['price']}",
                     "price":        row["price"],
-                    "ebay":         False,
                     "link":         row["link"],
                 })
             conn.close()
         except Exception as e:
             print(f"DB query error: {e}")
-
-        # 品牌過濾
-        if brand and brand != '選擇品牌':
-            results = [r for r in results if brand in r["source"] or brand in r["name"]]
 
         for item in results:
             item.setdefault("id", "live")
